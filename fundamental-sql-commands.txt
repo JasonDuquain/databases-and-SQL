@@ -47,7 +47,7 @@ CREATE TABLE list (
 	lastname text,
     rsvp boolean,
     guests integer,
-    meals integer
+    meals decimal
 );
 
 c. Write a command that adds a column to track whether the guest sent a thank you card.
