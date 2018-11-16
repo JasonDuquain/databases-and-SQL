@@ -38,7 +38,7 @@ a. Which data type would you use to store each of the following pieces of inform
 First and last name: text
 Whether they sent in their RSVP: boolean
 Number of guests: integer
-Number of meals: integer
+Number of meals: decimal
 
 b. Write a command that creates the table to track the wedding dinner.
 
