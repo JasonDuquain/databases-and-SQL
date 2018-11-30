@@ -1,71 +1,162 @@
 
 1. How do you find related data held in two separate data tables?
 
-
+Use the SQL 'JOIN' statement. A JOIN clause is used to combine rows from two or more tables, based on a related column between them.
 
 2. Explain, in your own words, the difference between an INNER JOIN, LEFT OUTER JOIN, and RIGHT OUTER JOIN. Give a real-world example for each.
 
-INNER JOIN: 
+INNER JOIN: selects all rows from both included tables as long as there is a match between the columns.
+Example: select all orders with customer information from an order table and a customer table.
 
-LEFT OUTER JOIN: 
+Query:
 
-RIGHT OUTER JOIN: 
+SELECT Orders.OrderID, Customers.CustomerName, Orders.OrderDate
+FROM Orders
+INNER JOIN Customers ON Orders.CustomerID=Customers.CustomerID;
+
+LEFT OUTER JOIN: returns all records from table 1 along with the matched records from table 2. If there is no match, the result is 'null' in table 2 column.
+Example: From a customer table and order table select all customers and any orders they may or may not have.
+
+Query:
+
+SELECT Customers.CustomerName, Orders.OrderID
+FROM Customers
+LEFT JOIN Orders ON Customers.CustomerID = Orders.CustomerID
+ORDER BY Customers.CustomerName;
+
+RIGHT OUTER JOIN: returns all results from table 2 along with the matched records from table 1. If there is no match, the result is 'null' in table 1 column.
+Example: select all the records from the Customers table plus all the matches in the Orders table.
+
+Query:
+  
+SELECT *
+FROM Orders
+RIGHT JOIN Customers
+ON Orders.CustomerID=Customers.CustomerID;
+
 
 3. Define primary key and foreign key. Give a real-world example for each.
+
+The primary key consists of one or more columns whose data contained within is used to uniquely identify each row in the table.  You can think of the primary key as an address.  If the rows in a table were mailboxes, then the primary key would be the listing of street addresses.
+
+A foreign key is a set of one or more columns in a table that refers to the primary key in another table.  There isn’t any special code, configurations, or table definitions you need to place to officially “designate” a foreign key.
+
+An example of a primary key could be a userID:
+
+Persons Table:
+UserID	LastName	FirstName	Age
+1		Hansen		Ola			30
+2		Svendson	Tove		23
+3		Pettersen	Kari		20
+
+Orders table:
+
+OrderID	OrderNumber	UserID
+1		77895		3
+2		44678		3
+3		22456		2
+4		24562		1
+
+The "UserID" column in the "Orders" table points to the "UserID" column in the "Persons" table.
+The "UserID" column in the "Persons" table is the PRIMARY KEY in the "Persons" table.
+The "UserID" column in the "Orders" table is a FOREIGN KEY in the "Orders" table.
 
 
 4. Define aliasing.
 
+Aliasing means abbreviating the names of tables when querying specific columns within those tables. 
 
 
 5. Change this query so that you are using aliasing:
+
 SELECT professor.name, compensation.salary,
 compensation.vacation_days FROM professor 
 JOIN compensation 
 ON professor.id =
 compensation.professor_id;
 
+SELECT p.name, c.salary, c.vacation_days
+FROM professor AS p
+JOIN compensation AS c
+ON p.id = c.professor_id;
+
 
 6. Why would you use a NATURAL JOIN? Give a real-world example.
 
+Use a NATURAL JOIN when you want to combine 2 tables that have columns with the same names. The data from the columns are combined into 1 new column and the data from both tables are matched up.
 
-
+Example: you have 1 table of foods, and another table of companies. On each table, there is a company_id column. You use NATURAL JOIN to create a new table that has data from both tables, and the company_id columns are 'merged' into one. The rest of the data is organized accordingly.
 
 
 7. Using this Employee schema and data, write queries to find the following information:
 List all employees and all shifts.
 
+SELECT * FROM employees 
+JOIN scheduled_shifts ON employees.id = scheduled_shifts.employee_id 
+JOIN shifts ON shifts.id = scheduled_shifts.shift_id;
 
 
 8. Using this Adoption schema and data, please write queries to retrieve the following information and include the results:
 
-
 a. Create a list of all volunteers. If the volunteer is fostering a dog, include each dog as well.
 
-
+SELECT volunteers.first_name, volunteers.last_name, dogs.name 
+FROM volunteers 
+LEFT OUTER JOIN dogs 
+ON volunteers.foster_dog_id = dogs.id;
 
 
 b. The cat's name, adopter's name, and adopted date for each cat adopted within the past month to be displayed as part of the "Happy Tail" social media promotion which posts recent successful adoptions.
 
+SELECT c.name, a.first_name, a.last_name, cat_adoptions.date
+FROM cat_adoptions
+JOIN adopters AS a ON a.id = cat_adoptions.adopter_id
+JOIN cats AS c ON c.id = cat_adoptions.cat_id WHERE date > (CURRENT_DATE - INTERVAL '30 DAYS'); 
 
 
 c. Create a list of adopters who have not yet chosen a dog to adopt.
 
+SELECT adopters.* FROM adopters
+LEFT JOIN dog_adoptions
+ON adopters.id = dog_adoptions.adopter_id
+WHERE dog_adoptions.adopter_id IS NULL;
+
 
 d. Lists of all cats and all dogs who have not been adopted.
 
+SELECT name FROM cats
+JOIN cat_adoptions
+ON cat_adoptions.cat_id <> cats.id;
+
+SELECT name FROM dogs
+JOIN dog_adoptions
+ON dog_adoptions.dog_id <> dogs.id;
 
 
 e. The name of the person who adopted Rosco.
 
+SELECT a.first_name, a.last_name
+FROM dogs
+JOIN dog_adoptions AS da ON dogs.id = da.dog_id
+JOIN adopters AS a ON a.id = da.adopter_id
+WHERE dogs.name = 'Rosco';
 
 
 9. Using this Library schema and data, write queries applying the following scenarios and include the results:
 
-
 a. To determine if the library should buy more copies of a given book, please provide the names and position, in order, of all of the patrons with a hold (request for a book with all copies checked out) on "Advanced Potion-Making".
 
+SELECT patrons.name, holds.rank FROM patrons
+JOIN holds ON patrons.id = holds.patron_id
+JOIN books USING (isbn)
+WHERE books.title = 'Advanced Potion-Making'
+ORDER BY holds.rank;
 
 
 b. List all of the library patrons. If they have one or more books checked out, list the books with the patrons.
 
+SELECT patrons.name, books.*, transactions.checked_out_date, transactions.checked_in_date FROM patrons
+LEFT OUTER JOIN transactions
+ON patrons.id = transactions.patron_id
+LEFT OUTER JOIN books USING (isbn)
+ORDER BY patrons.name;
