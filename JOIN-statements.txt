@@ -155,8 +155,9 @@ ORDER BY holds.rank;
 
 b. List all of the library patrons. If they have one or more books checked out, list the books with the patrons.
 
-SELECT patrons.name, books.*, transactions.checked_out_date, transactions.checked_in_date FROM patrons
+SELECT patrons.name, books.*, transactions.checked_out_date, transactions.checked_in_date 
+FROM patrons 
 LEFT OUTER JOIN transactions
 ON patrons.id = transactions.patron_id
 LEFT OUTER JOIN books USING (isbn)
-ORDER BY patrons.name;
+WHERE transactions.checked_in_date IS NULL 
